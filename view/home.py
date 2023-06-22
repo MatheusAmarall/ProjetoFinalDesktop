@@ -9,13 +9,22 @@ from PySide6.QtWidgets import (QApplication, QFrame, QHBoxLayout, QHeaderView,
     QLabel, QMainWindow, QSizePolicy, QSpacerItem,
     QTableWidget, QTableWidgetItem, QToolButton, QVBoxLayout,
     QWidget)
+from infra.entities.pedido import Pedido
+from infra.entities.item import Item
+from infra.repository.item_repository import ItemRepository
+from infra.repository.pedido_repository import PedidoRepository
+from infra.configs.connection import DBConnectionHandler
+from view.novopedido import NovoPedido
 
-class Ui_MainWindow(object):
+class Home(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(841, 624)
+        MainWindow.resize(941, 693)
         MainWindow.setStyleSheet(u"background-color: rgb(255, 255, 255);")
+
+        conn = DBConnectionHandler()
+
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.verticalLayout_10 = QVBoxLayout(self.centralwidget)
@@ -50,10 +59,6 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout.addWidget(self.label)
 
-        self.horizontalSpacer = QSpacerItem(50, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.horizontalLayout.addItem(self.horizontalSpacer)
-
         self.label_2 = QLabel(self.frame_13)
         self.label_2.setObjectName(u"label_2")
         self.label_2.setStyleSheet(u"color: #c77f14;\n"
@@ -61,13 +66,13 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout.addWidget(self.label_2)
 
-        self.horizontalSpacer_2 = QSpacerItem(179, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.horizontalSpacer_2 = QSpacerItem(467, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
         self.horizontalLayout.addItem(self.horizontalSpacer_2)
 
-        self.toolButton = QToolButton(self.frame_13)
-        self.toolButton.setObjectName(u"toolButton")
-        self.toolButton.setStyleSheet(u"QToolButton {\n"
+        self.btn_novo = QToolButton(self.frame_13)
+        self.btn_novo.setObjectName(u"btn_novo")
+        self.btn_novo.setStyleSheet(u"QToolButton {\n"
 "    background-color: transparent;\n"
 "    color: #fcba03;\n"
 "    font-size: 15px;\n"
@@ -80,7 +85,7 @@ class Ui_MainWindow(object):
 "}\n"
 "")
 
-        self.horizontalLayout.addWidget(self.toolButton)
+        self.horizontalLayout.addWidget(self.btn_novo)
 
 
         self.horizontalLayout_2.addWidget(self.frame_13)
@@ -127,21 +132,30 @@ class Ui_MainWindow(object):
         self.frame_6.setFrameShadow(QFrame.Raised)
         self.verticalLayout_4 = QVBoxLayout(self.frame_6)
         self.verticalLayout_4.setObjectName(u"verticalLayout_4")
-        self.tableWidget = QTableWidget(self.frame_6)
-        if (self.tableWidget.columnCount() < 4):
-            self.tableWidget.setColumnCount(4)
+        self.tb_pedidos = QTableWidget(self.frame_6)
+        if (self.tb_pedidos.columnCount() < 4):
+            self.tb_pedidos.setColumnCount(4)
         __qtablewidgetitem = QTableWidgetItem()
-        self.tableWidget.setHorizontalHeaderItem(0, __qtablewidgetitem)
+        self.tb_pedidos.setHorizontalHeaderItem(0, __qtablewidgetitem)
         __qtablewidgetitem1 = QTableWidgetItem()
-        self.tableWidget.setHorizontalHeaderItem(1, __qtablewidgetitem1)
+        self.tb_pedidos.setHorizontalHeaderItem(1, __qtablewidgetitem1)
         __qtablewidgetitem2 = QTableWidgetItem()
-        self.tableWidget.setHorizontalHeaderItem(2, __qtablewidgetitem2)
+        self.tb_pedidos.setHorizontalHeaderItem(2, __qtablewidgetitem2)
         __qtablewidgetitem3 = QTableWidgetItem()
-        self.tableWidget.setHorizontalHeaderItem(3, __qtablewidgetitem3)
-        self.tableWidget.setObjectName(u"tableWidget")
-        self.tableWidget.setMaximumSize(QSize(16777215, 200))
+        self.tb_pedidos.setHorizontalHeaderItem(3, __qtablewidgetitem3)
+        self.tb_pedidos.setObjectName(u"tb_pedidos")
+        self.tb_pedidos.setMaximumSize(QSize(16777215, 200))
+        self.tb_pedidos.setWordWrap(True)
+        self.tb_pedidos.setCornerButtonEnabled(True)
+        self.tb_pedidos.horizontalHeader().setCascadingSectionResizes(False)
+        self.tb_pedidos.horizontalHeader().setDefaultSectionSize(200)
+        self.tb_pedidos.horizontalHeader().setHighlightSections(True)
+        self.tb_pedidos.horizontalHeader().setProperty("showSortIndicator", False)
+        self.tb_pedidos.horizontalHeader().setStretchLastSection(True)
+        self.tb_pedidos.verticalHeader().setCascadingSectionResizes(False)
+        self.tb_pedidos.verticalHeader().setStretchLastSection(False)
 
-        self.verticalLayout_4.addWidget(self.tableWidget)
+        self.verticalLayout_4.addWidget(self.tb_pedidos)
 
 
         self.verticalLayout_10.addWidget(self.frame_6)
@@ -187,21 +201,42 @@ class Ui_MainWindow(object):
         self.retranslateUi(MainWindow)
 
         QMetaObject.connectSlotsByName(MainWindow)
+
+        self.btn_novo.clicked.connect(self.novo_pedido)
     # setupUi
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"MainWindow", None))
         self.label.setText("")
-        self.toolButton.setText(QCoreApplication.translate("MainWindow", u"NOVO PEDIDO", None))
+        self.label_2.setText(QCoreApplication.translate("MainWindow", u"PalhoBurger", None))
+        self.btn_novo.setText(QCoreApplication.translate("MainWindow", u"NOVO PEDIDO", None))
         self.label_5.setText(QCoreApplication.translate("MainWindow", u"<html><head/><body><p align=\"center\"><span style=\" font-size:30pt;\">Pedidos feitos:</span></p></body></html>", None))
-        ___qtablewidgetitem = self.tableWidget.horizontalHeaderItem(0)
+        ___qtablewidgetitem = self.tb_pedidos.horizontalHeaderItem(0)
         ___qtablewidgetitem.setText(QCoreApplication.translate("MainWindow", u"ID", None));
-        ___qtablewidgetitem1 = self.tableWidget.horizontalHeaderItem(1)
+        ___qtablewidgetitem1 = self.tb_pedidos.horizontalHeaderItem(1)
         ___qtablewidgetitem1.setText(QCoreApplication.translate("MainWindow", u"N\u00famero", None));
-        ___qtablewidgetitem2 = self.tableWidget.horizontalHeaderItem(2)
+        ___qtablewidgetitem2 = self.tb_pedidos.horizontalHeaderItem(2)
         ___qtablewidgetitem2.setText(QCoreApplication.translate("MainWindow", u"Cliente", None));
-        ___qtablewidgetitem3 = self.tableWidget.horizontalHeaderItem(3)
+        ___qtablewidgetitem3 = self.tb_pedidos.horizontalHeaderItem(3)
         ___qtablewidgetitem3.setText(QCoreApplication.translate("MainWindow", u"Data", None));
         self.label_4.setText(QCoreApplication.translate("MainWindow", u"<html><head/><body><p align=\"center\"><span style=\" font-size:11pt;\">PalhoBurger \u00a9 2023</span></p></body></html>", None))
     # retranslateUi
+
+    def novo_pedido(self):
+        self.hide()
+        novo_pedido = NovoPedido()
+        self.window = QMainWindow()
+        novo_pedido.setupUi(self.window)
+        self.window.show()
+
+    # def popula_tabela_pedidos(self):
+    #     self.tb_pedidos.setRowCount(0)
+    #     db = PedidoRepository()
+    #     lista_pedidos = db.select_all()
+    #     self.tb_pedidos.setRowCount(len(lista_pedidos))
+    #
+    #     for linha, cliente in enumerate(lista_pedidos):
+    #         valores_cliente = [cliente.cpf, cliente.nome, cliente.telefone_fixo, cliente.telefone_celular, cliente.sexo, cliente.cep, cliente.logradouro, cliente.numero, cliente.complemento, cliente.bairro, cliente.municipio, cliente.estado]
+    #         for coluna, valor in enumerate(valores_cliente):
+    #             self.tb_pedidos.setItem(linha, coluna, QTableWidgetItem(str(valor)))
 

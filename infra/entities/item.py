@@ -2,7 +2,7 @@ from infra.configs.base import Base
 from sqlalchemy import Column, String, Integer, ForeignKey
 
 class Item(Base):
-    __tablename__ = 'cliente'
+    __tablename__ = 'item'
 
     id = Column(Integer, unique=True, primary_key=True)
     descricao = Column(String(100), nullable=False)
