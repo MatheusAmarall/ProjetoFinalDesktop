@@ -12,12 +12,13 @@ class PedidoRepository:
             data = db.session.query(Pedido).filter(Pedido.id == id).first()
             return data
 
-    def insert(self, pedido):
+    def insert(self, pedido:Pedido):
         with DBConnectionHandler() as db:
             try:
                 db.session.add(pedido)
                 db.session.commit()
-                return "OK"
+                db.session.refresh(pedido)
+                return pedido.id
             except Exception as e:
                 db.session.rollback()
                 return e
@@ -35,7 +36,9 @@ class PedidoRepository:
     def update(self, pedido=Pedido):
         with DBConnectionHandler() as db:
             try:
-                db.session.query(Pedido).filter(Pedido.id == pedido.id).update(pedido.dict())
+                db.session.query(Pedido).filter(Pedido.id == pedido.id).update({
+                Pedido.cliente: pedido.cliente
+            })
                 db.session.commit()
 
                 return "OK"

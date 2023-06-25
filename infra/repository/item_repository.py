@@ -7,9 +7,9 @@ class ItemRepository:
             data = db.session.query(Item).all()
             return data
 
-    def select(self, id):
+    def select(self, pedido_id):
         with DBConnectionHandler() as db:
-            data = db.session.query(Item).filter(Item.id == id).first()
+            data = db.session.query(Item).filter(Item.id_pedido == pedido_id).first()
             return data
 
     def insert(self, item):
@@ -35,7 +35,10 @@ class ItemRepository:
     def update(self, item=Item):
         with DBConnectionHandler() as db:
             try:
-                db.session.query(Item).filter(Item.id == item.id).update(item.dict())
+                db.session.query(Item).filter(Item.id == item.id).update({
+                    Item.descricao: item.descricao,
+                    Item.quantidade: item.quantidade
+                })
                 db.session.commit()
 
                 return "OK"

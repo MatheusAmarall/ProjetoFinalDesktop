@@ -1,3 +1,5 @@
+import uuid
+
 from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
     QMetaObject, QObject, QPoint, QRect,
     QSize, QTime, QUrl, Qt)
@@ -21,6 +23,7 @@ class NovoPedido(object):
             MainWindow.setObjectName(u"MainWindow")
         MainWindow.resize(1124, 689)
         MainWindow.setStyleSheet(u"background-color: rgb(255, 255, 255);")
+        self.mainWindow = MainWindow
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.verticalLayout_4 = QVBoxLayout(self.centralwidget)
@@ -211,8 +214,11 @@ class NovoPedido(object):
 
         QMetaObject.connectSlotsByName(MainWindow)
 
+        self.btn_excluir.setVisible(False)
+
         self.btn_cadastrar.clicked.connect(self.salvar_pedido)
-        self.btn_voltar.clicked.connect(self.limpar_campos)
+        self.btn_voltar.clicked.connect(self.home)
+        self.btn_excluir.clicked.connect(self.excluir_pedido)
     # setupUi
 
     def retranslateUi(self, MainWindow):
@@ -245,72 +251,105 @@ class NovoPedido(object):
         self.label_4.setText(QCoreApplication.translate("MainWindow", u"<html><head/><body><p align=\"center\"><span style=\" font-size:11pt;\">PalhoBurger \u00a9 2023</span></p></body></html>", None))
     # retranslateUi
 
+    def popula_visualizacao(self, item:Item, pedido:Pedido):
+        self.txt_nome.setText(pedido.cliente)
+        listaItem = item.descricao.split("|")
+        hamb_map = {'SELECIONE SEU HAMBURGUER': 0, 'X-Salada': 1, 'X-coração': 2, 'X-PalhoBurger': 3}
+        bebida_map = {'SELECIONE SUA BEBIDA': 0, 'Agua': 1, 'Coca cola': 2, 'Pepsi': 3}
+        acompanha_map = {'SELECIONE SEU ACOMPANHAMENTO': 0, 'Batata frita': 1, 'Aneis de cebola': 2, 'Nuggets': 3}
+        self.cb_ham.setCurrentIndex(hamb_map.get(listaItem[0]))
+        self.cb_bebida.setCurrentIndex(bebida_map.get(listaItem[1]))
+        self.cb_acompanha.setCurrentIndex(acompanha_map.get(listaItem[2]))
+        self.sp_qtd.setValue(item.quantidade)
+        self.btn_excluir.setVisible(True)
+        self.btn_cadastrar.setText("ATUALIZAR")
+        self.id_item = item.id
+
+    def excluir_pedido(self):
+        dbPedido = PedidoRepository()
+        dbItem = ItemRepository()
+
+        item = dbItem.select(self.id_item)
+
+        retornoItem = dbItem.delete(item.id)
+        retornoPedido = dbPedido.delete(item.id_pedido)
+
+        if retornoItem == 'OK' and retornoPedido == 'OK':
+            msg = QMessageBox()
+            msg.setWindowTitle('Remover Pedido')
+            msg.setText(f'Pedido foi deletado')
+            msg.exec()
+
+            self.home()
+        else:
+            msg = QMessageBox()
+            msg.setWindowTitle('Remover pedido')
+            msg.setText('Erro ao remover pedido')
+            msg.exec()
 
 
     def salvar_pedido(self):
-        print("asdsad")
-        # dbPedido = PedidoRepository()
-        # dbItem = ItemRepository()
-        #
-        # pedido = Pedido(
-        #     cliente=self.txt_nome.text(),
-        #     data=datetime.now()
-        # )
-        #
-        # if self.btn_cadastrar.text() == 'CADASTRAR':
-        #     retornoPedido = dbPedido.insert(pedido)
-        #
-        #     item = Item(
-        #         descricao=self.cb_ham.currentText(),
-        #         quantidade=self.sp_qtd.text(),
-        #         id_pedido=pedido.id
-        #     )
-        #
-        #     retornoItem = dbItem.insert(item)
-        #     if retornoPedido == 'OK' and retornoItem == 'OK':
-        #         msg = QMessageBox()
-        #         msg.setIcon(QMessageBox.Information)
-        #         msg.setWindowTitle('Cadastro realizado')
-        #         msg.setText('Cadastro realizado com sucesso')
-        #         msg.exec()
-        #
-        #         self.limpar_campos()
-        #     else:
-        #         msg = QMessageBox()
-        #         msg.setIcon(QMessageBox.Critical)
-        #         msg.setWindowTitle('Erro ao cadastrar')
-        #         msg.setText(f'Erro ao cadastrar o cliente, verifique os dados')
-        #         msg.exec()
-        # elif self.btn_cadastrar.text() == 'ATUALIZAR':
-        #     print("atualizar")
-        #     # retorno = db.update(cliente)
-        #     #
-        #     # if retorno == 'OK':
-        #     #     msg = QMessageBox()
-        #     #     msg.setIcon(QMessageBox.Information)
-        #     #     msg.setWindowTitle('Atualizar')
-        #     #     msg.setText('Usuario editado com sucesso')
-        #     #     msg.exec()
-        #     #
-        #     #     self.limpar_campos()
+        dbPedido = PedidoRepository()
+        dbItem = ItemRepository()
 
-    def limpar_campos(self):
-        print("limpou")
-        # for widget in self.widgetDados.children():
-        #     if isinstance(widget, QLineEdit):
-        #         widget.setText("")
-        #     elif isinstance(widget, QComboBox):
-        #         widget.setCurrentIndex(0)
-        #
-        # for widget in self.widgetEndereco.children():
-        #     if isinstance(widget, QLineEdit):
-        #         widget.setText("")
-        #
-        # self.btn_salvar.setText('Salvar')
-        # self.btn_remover.setVisible(False)
-        # self.txt_cpf.setReadOnly(False)
+        if self.btn_cadastrar.text() == 'CADASTRAR':
+            pedido = Pedido(
+                numero=uuid.uuid4(),
+                cliente=self.txt_nome.text(),
+                data=datetime.now()
+            )
 
-    # def home(self):
-    #     self.parent().show()
-    #     self.close()
+            retornoPedido = dbPedido.insert(pedido)
+
+            item = Item(
+                descricao=f"{self.cb_ham.currentText()}|{self.cb_bebida.currentText()}|{self.cb_acompanha.currentText()}",
+                quantidade=self.sp_qtd.text(),
+                id_pedido=retornoPedido
+            )
+
+            retornoItem = dbItem.insert(item)
+            if isinstance(retornoPedido, int) and retornoItem == 'OK':
+                msg = QMessageBox()
+                msg.setIcon(QMessageBox.Information)
+                msg.setWindowTitle('Cadastro realizado')
+                msg.setText('Cadastro realizado com sucesso')
+                msg.exec()
+
+                self.home()
+            else:
+                msg = QMessageBox()
+                msg.setIcon(QMessageBox.Critical)
+                msg.setWindowTitle('Erro ao cadastrar')
+                msg.setText(f'Erro ao cadastrar o cliente, verifique os dados')
+                msg.exec()
+        elif self.btn_cadastrar.text() == 'ATUALIZAR':
+            print("atualizar")
+            item = dbItem.select(self.id_item)
+            pedido = dbPedido.select(item.id_pedido)
+
+            pedido.cliente = self.txt_nome.text()
+
+            retornoPedido = dbPedido.update(pedido)
+
+            item.descricao = f"{self.cb_ham.currentText()}|{self.cb_bebida.currentText()}|{self.cb_acompanha.currentText()}"
+            item.quantidade = self.sp_qtd.text()
+
+            retornoItem = dbItem.update(item)
+
+            if retornoPedido == 'OK' and retornoItem == 'OK':
+                msg = QMessageBox()
+                msg.setIcon(QMessageBox.Information)
+                msg.setWindowTitle('Atualizar')
+                msg.setText('Pedido editado com sucesso')
+                msg.exec()
+
+                self.home()
+
+    def home(self):
+        from view.home import Home
+        self.window = QMainWindow()
+        self.ui = Home()
+        self.ui.setupUi(self.window)
+        self.window.show()
+        self.mainWindow.hide()
 

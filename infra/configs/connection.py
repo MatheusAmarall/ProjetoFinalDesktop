@@ -5,7 +5,7 @@ from infra.configs.base import Base
 class DBConnectionHandler:
 
     def __init__(self):
-        self.__connection_string = 'mysql+pymysql://root:Senac2021@localhost:3306/pedidos'
+        self.__connection_string = 'mysql+pymysql://root:123456@localhost:3306/pedidos'
         self.__engine = self.__create_engine()
         self.session = None
         self.create_database()

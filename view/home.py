@@ -8,7 +8,7 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
 from PySide6.QtWidgets import (QApplication, QFrame, QHBoxLayout, QHeaderView,
     QLabel, QMainWindow, QSizePolicy, QSpacerItem,
     QTableWidget, QTableWidgetItem, QToolButton, QVBoxLayout,
-    QWidget)
+    QWidget, QAbstractItemView)
 from infra.entities.pedido import Pedido
 from infra.entities.item import Item
 from infra.repository.item_repository import ItemRepository
@@ -22,7 +22,7 @@ class Home(object):
             MainWindow.setObjectName(u"MainWindow")
         MainWindow.resize(941, 693)
         MainWindow.setStyleSheet(u"background-color: rgb(255, 255, 255);")
-
+        self.mainWindow = MainWindow
         conn = DBConnectionHandler()
 
         self.centralwidget = QWidget(MainWindow)
@@ -133,6 +133,9 @@ class Home(object):
         self.verticalLayout_4 = QVBoxLayout(self.frame_6)
         self.verticalLayout_4.setObjectName(u"verticalLayout_4")
         self.tb_pedidos = QTableWidget(self.frame_6)
+        self.tb_pedidos.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.tb_pedidos.verticalHeader().setVisible(False)
+        self.tb_pedidos.setSelectionBehavior(QAbstractItemView.SelectRows)
         if (self.tb_pedidos.columnCount() < 4):
             self.tb_pedidos.setColumnCount(4)
         __qtablewidgetitem = QTableWidgetItem()
@@ -203,6 +206,8 @@ class Home(object):
         QMetaObject.connectSlotsByName(MainWindow)
 
         self.btn_novo.clicked.connect(self.novo_pedido)
+        self.tb_pedidos.cellDoubleClicked.connect(self.visulizar_pedido)
+        self.popula_tabela_pedidos()
     # setupUi
 
     def retranslateUi(self, MainWindow):
@@ -223,20 +228,33 @@ class Home(object):
     # retranslateUi
 
     def novo_pedido(self):
-        self.hide()
-        novo_pedido = NovoPedido()
         self.window = QMainWindow()
-        novo_pedido.setupUi(self.window)
+        self.ui = NovoPedido()
+        self.ui.setupUi(self.window)
         self.window.show()
+        self.mainWindow.hide()
 
-    # def popula_tabela_pedidos(self):
-    #     self.tb_pedidos.setRowCount(0)
-    #     db = PedidoRepository()
-    #     lista_pedidos = db.select_all()
-    #     self.tb_pedidos.setRowCount(len(lista_pedidos))
-    #
-    #     for linha, cliente in enumerate(lista_pedidos):
-    #         valores_cliente = [cliente.cpf, cliente.nome, cliente.telefone_fixo, cliente.telefone_celular, cliente.sexo, cliente.cep, cliente.logradouro, cliente.numero, cliente.complemento, cliente.bairro, cliente.municipio, cliente.estado]
-    #         for coluna, valor in enumerate(valores_cliente):
-    #             self.tb_pedidos.setItem(linha, coluna, QTableWidgetItem(str(valor)))
+    def visulizar_pedido(self, row):
+        dbPedido = PedidoRepository()
+        pedido = dbPedido.select(self.tb_pedidos.item(row, 0).text())
+        dbItem = ItemRepository()
+        item = dbItem.select(pedido.id)
+
+        self.window = QMainWindow()
+        self.ui = NovoPedido()
+        self.ui.setupUi(self.window)
+        self.window.show()
+        self.ui.popula_visualizacao(item, pedido)
+        self.mainWindow.hide()
+
+    def popula_tabela_pedidos(self):
+        self.tb_pedidos.setRowCount(0)
+        db = PedidoRepository()
+        lista_pedidos = db.select_all()
+        self.tb_pedidos.setRowCount(len(lista_pedidos))
+
+        for linha, pedido in enumerate(lista_pedidos):
+            valores_pedido = [pedido.id, pedido.numero, pedido.cliente, pedido.data]
+            for coluna, valor in enumerate(valores_pedido):
+                self.tb_pedidos.setItem(linha, coluna, QTableWidgetItem(str(valor)))
 
