@@ -292,58 +292,69 @@ class NovoPedido(object):
         dbPedido = PedidoRepository()
         dbItem = ItemRepository()
 
-        if self.btn_cadastrar.text() == 'CADASTRAR':
-            pedido = Pedido(
-                numero=uuid.uuid4(),
-                cliente=self.txt_nome.text(),
-                data=datetime.now()
-            )
+        if self.txt_nome.text() == '' \
+                or self.cb_ham.currentText() == 'SELECIONE SEU HAMBURGUER' \
+                or self.cb_bebida.currentText() == 'SELECIONE SUA BEBIDA' \
+                or self.cb_acompanha.currentText() == 'SELECIONE SEU ACOMPANHAMENTO' \
+                or self.sp_qtd.text() == '0':
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Critical)
+            msg.setWindowTitle('Erro preenchimento')
+            msg.setText('Preencha todos os dados!')
+            msg.exec()
+        else:
+            if self.btn_cadastrar.text() == 'CADASTRAR':
+                pedido = Pedido(
+                    numero=uuid.uuid4(),
+                    cliente=self.txt_nome.text(),
+                    data=datetime.now()
+                )
 
-            retornoPedido = dbPedido.insert(pedido)
+                retornoPedido = dbPedido.insert(pedido)
 
-            item = Item(
-                descricao=f"{self.cb_ham.currentText()}|{self.cb_bebida.currentText()}|{self.cb_acompanha.currentText()}",
-                quantidade=self.sp_qtd.text(),
-                id_pedido=retornoPedido
-            )
+                item = Item(
+                    descricao=f"{self.cb_ham.currentText()}|{self.cb_bebida.currentText()}|{self.cb_acompanha.currentText()}",
+                    quantidade=self.sp_qtd.text(),
+                    id_pedido=retornoPedido
+                )
 
-            retornoItem = dbItem.insert(item)
-            if isinstance(retornoPedido, int) and retornoItem == 'OK':
-                msg = QMessageBox()
-                msg.setIcon(QMessageBox.Information)
-                msg.setWindowTitle('Cadastro realizado')
-                msg.setText('Cadastro realizado com sucesso')
-                msg.exec()
+                retornoItem = dbItem.insert(item)
+                if isinstance(retornoPedido, int) and retornoItem == 'OK':
+                    msg = QMessageBox()
+                    msg.setIcon(QMessageBox.Information)
+                    msg.setWindowTitle('Cadastro realizado')
+                    msg.setText('Cadastro realizado com sucesso')
+                    msg.exec()
 
-                self.home()
-            else:
-                msg = QMessageBox()
-                msg.setIcon(QMessageBox.Critical)
-                msg.setWindowTitle('Erro ao cadastrar')
-                msg.setText(f'Erro ao cadastrar o cliente, verifique os dados')
-                msg.exec()
-        elif self.btn_cadastrar.text() == 'ATUALIZAR':
-            print("atualizar")
-            item = dbItem.select(self.id_item)
-            pedido = dbPedido.select(item.id_pedido)
+                    self.home()
+                else:
+                    msg = QMessageBox()
+                    msg.setIcon(QMessageBox.Critical)
+                    msg.setWindowTitle('Erro ao cadastrar')
+                    msg.setText(f'Erro ao cadastrar o cliente, verifique os dados')
+                    msg.exec()
+            elif self.btn_cadastrar.text() == 'ATUALIZAR':
+                print("atualizar")
+                item = dbItem.select(self.id_item)
+                pedido = dbPedido.select(item.id_pedido)
 
-            pedido.cliente = self.txt_nome.text()
+                pedido.cliente = self.txt_nome.text()
 
-            retornoPedido = dbPedido.update(pedido)
+                retornoPedido = dbPedido.update(pedido)
 
-            item.descricao = f"{self.cb_ham.currentText()}|{self.cb_bebida.currentText()}|{self.cb_acompanha.currentText()}"
-            item.quantidade = self.sp_qtd.text()
+                item.descricao = f"{self.cb_ham.currentText()}|{self.cb_bebida.currentText()}|{self.cb_acompanha.currentText()}"
+                item.quantidade = self.sp_qtd.text()
 
-            retornoItem = dbItem.update(item)
+                retornoItem = dbItem.update(item)
 
-            if retornoPedido == 'OK' and retornoItem == 'OK':
-                msg = QMessageBox()
-                msg.setIcon(QMessageBox.Information)
-                msg.setWindowTitle('Atualizar')
-                msg.setText('Pedido editado com sucesso')
-                msg.exec()
+                if retornoPedido == 'OK' and retornoItem == 'OK':
+                    msg = QMessageBox()
+                    msg.setIcon(QMessageBox.Information)
+                    msg.setWindowTitle('Atualizar')
+                    msg.setText('Pedido editado com sucesso')
+                    msg.exec()
 
-                self.home()
+                    self.home()
 
     def home(self):
         from view.home import Home
