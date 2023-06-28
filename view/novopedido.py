@@ -114,6 +114,7 @@ class NovoPedido(object):
         self.frame_7.setFrameShape(QFrame.StyledPanel)
         self.frame_7.setFrameShadow(QFrame.Raised)
         self.txt_nome = QLineEdit(self.frame_7)
+        self.txt_nome.setPlaceholderText("Digite o nome do cliente")
         self.txt_nome.setObjectName(u"txt_nome")
         self.txt_nome.setGeometry(QRect(500, 20, 211, 20))
         self.cb_ham = QComboBox(self.frame_7)
