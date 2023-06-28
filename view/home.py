@@ -15,6 +15,7 @@ from infra.repository.item_repository import ItemRepository
 from infra.repository.pedido_repository import PedidoRepository
 from infra.configs.connection import DBConnectionHandler
 from view.novopedido import NovoPedido
+import datetime
 
 class Home(object):
     def setupUi(self, MainWindow):
@@ -254,7 +255,9 @@ class Home(object):
         self.tb_pedidos.setRowCount(len(lista_pedidos))
 
         for linha, pedido in enumerate(lista_pedidos):
-            valores_pedido = [pedido.id, pedido.numero, pedido.cliente, pedido.data]
+            data = datetime.datetime.strptime(pedido.data, "%Y-%m-%d %H:%M:%S.%f")
+            dataFormatada = data.strftime("%d/%m/%Y")
+            valores_pedido = [pedido.id, pedido.numero, pedido.cliente, dataFormatada]
             for coluna, valor in enumerate(valores_pedido):
                 self.tb_pedidos.setItem(linha, coluna, QTableWidgetItem(str(valor)))
 
