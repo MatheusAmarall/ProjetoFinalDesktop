@@ -47,14 +47,6 @@ class NovoPedido(object):
         self.frame_13.setObjectName(u"frame_13")
         self.frame_13.setFrameShape(QFrame.StyledPanel)
         self.frame_13.setFrameShadow(QFrame.Raised)
-        self.label = QLabel(self.frame_13)
-        self.label.setObjectName(u"label")
-        self.label.setGeometry(QRect(307, 10, 16, 16))
-        self.label.setMaximumSize(QSize(50, 50))
-        self.label.setStyleSheet(u"image: url(images/bugui.png);\n"
-"")
-        self.label.setPixmap(QPixmap(u"buguii.png"))
-        self.label.setScaledContents(True)
         self.label_3 = QLabel(self.frame_13)
         self.label_3.setObjectName(u"label_3")
         self.label_3.setGeometry(QRect(296, 10, 16, 16))
@@ -147,24 +139,47 @@ class NovoPedido(object):
         self.cb_acompanha.setGeometry(QRect(500, 110, 211, 22))
         self.btn_voltar = QToolButton(self.frame_7)
         self.btn_voltar.setObjectName(u"btn_voltar")
-        self.btn_voltar.setGeometry(QRect(20, 290, 75, 23))
-        self.btn_voltar.setStyleSheet(u"QToolButton{\n"
-" \n"
-"  border: none;\n"
-"  border-radius: 4px;\n"
-"  cursor: pointer; \n"
-"}\n"
-"\n"
-"button:hover {\n"
-"  background-color: #45a049;\n"
-"}\n"
-"\n"
-"\n"
-"\n"
-"")
+        self.btn_voltar.setGeometry(QRect(20, 272, 121, 41))
+        self.btn_voltar.setStyleSheet(u"QToolButton {\n"
+                                      "	text-align: center;\n"
+                                      "	text-decoration: none;\n"
+                                      "	padding: 8px 24px;\n"
+                                      "	display: inline-block;\n"
+                                      "	font-size: 16px;\n"
+                                      "	margin: 4px 2px;\n"
+                                      "	transition-duration: 0.4s;\n"
+                                      "	cursor: pointer;\n"
+                                      "	border-radius: 6px;\n"
+                                      "	background-color: white;\n"
+                                      "    color: black;\n"
+                                      "    border: 2px solid #e7e7e7;\n"
+                                      "}\n"
+                                      "\n"
+                                      "QToolButton:hover {\n"
+                                      "  	background-color: #e7e7e7;;\n"
+                                      "}")
         self.btn_cadastrar = QPushButton(self.frame_7)
         self.btn_cadastrar.setObjectName(u"btn_cadastrar")
-        self.btn_cadastrar.setGeometry(QRect(1020, 290, 75, 23))
+        self.btn_cadastrar.setGeometry(QRect(944, 272, 151, 41))
+        self.btn_cadastrar.setStyleSheet(u"QPushButton {\n"
+                                         "	text-align: center;\n"
+                                         "    padding: 8px 24px;\n"
+                                         "	text-decoration: none;\n"
+                                         "	display: inline-block;\n"
+                                         "	font-size: 16px;\n"
+                                         "	margin: 4px 2px;\n"
+                                         "	transition-duration: 0.4s;\n"
+                                         "	cursor: pointer;\n"
+                                         "	border-radius: 6px;\n"
+                                         "	background-color: white; \n"
+                                         "	color: black; \n"
+                                         "	border: 2px solid #4CAF50;\n"
+                                         "}\n"
+                                         "\n"
+                                         "QPushButton:hover {\n"
+                                         "  	background-color: #4CAF50;\n"
+                                         "  	color: white;\n"
+                                         "}")
         self.sp_qtd = QSpinBox(self.frame_7)
         self.sp_qtd.setObjectName(u"sp_qtd")
         self.sp_qtd.setGeometry(QRect(651, 150, 61, 22))
@@ -173,7 +188,26 @@ class NovoPedido(object):
         self.label_9.setGeometry(QRect(500, 150, 141, 20))
         self.btn_excluir = QPushButton(self.frame_7)
         self.btn_excluir.setObjectName(u"btn_excluir")
-        self.btn_excluir.setGeometry(QRect(490, 290, 75, 23))
+        self.btn_excluir.setGeometry(QRect(514, 272, 121, 41))
+        self.btn_excluir.setStyleSheet(u"QPushButton {\n"
+                                        "	text-align: center;\n"
+                                        "	padding: 8px 24px;\n"
+                                        "	text-decoration: none;\n"
+                                        "	display: inline-block;\n"
+                                        "	font-size: 16px;\n"
+                                        "	margin: 4px 2px;\n"
+                                        "	transition-duration: 0.4s;\n"
+                                        "	cursor: pointer;\n"
+                                        "	border-radius: 6px;\n"
+                                        "	background-color: white; \n"
+                                        " 	color: black; \n"
+                                        "    border: 2px solid #f44336;\n"
+                                        "}\n"
+                                        "\n"
+                                        "QPushButton:hover {\n"
+                                        "  	background-color: #f44336;\n"
+                                        " 	color: white;\n"
+                                        "}")
 
         self.verticalLayout_4.addWidget(self.frame_7)
 
@@ -223,7 +257,6 @@ class NovoPedido(object):
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"MainWindow", None))
-        self.label.setText("")
         self.label_3.setText("")
         self.label_6.setText("")
         self.label_7.setText("")
